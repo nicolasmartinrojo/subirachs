@@ -15,21 +15,25 @@ const TileContainer = styled.div`
 
 const SubirachsPage = () => {
   const combinations = findCombinations();
+  const [matchedCombinations, setMatchedCombinations] = useState(combinations);
 
   const [hoveredCombinations, setHoveredCombinations] = useState([]);
-  const showCombinations = positions => {
-    console.log(positions);
-    setHoveredCombinations(positions);
-  };
   const [matchedPositions, setMatchedPositions] = useState({});
   const [selectedPositions, setSelectedPositions] = useState([]);
 
+  const toggleElement = (array, element) => {
+    return !array.includes(element) ? [...array, element] : array.filter(e => e !== element);
+  };
   const searchOcurrences = position => {
-    const positions = [...selectedPositions, position];
+    const positions = toggleElement(selectedPositions, position);
     const _matchedCombinations = combinations.filter(c =>
       positions.every(d => c.positions.includes(d))
     );
     const _matchedPositions = {};
+
+    // clear selected combination, if any
+    setHoveredCombinations([]);
+
     _matchedCombinations.forEach(c => {
       c.positions.forEach(p => {
         if (_matchedPositions[p]) {
@@ -41,26 +45,38 @@ const SubirachsPage = () => {
     });
     setMatchedPositions(_matchedPositions);
     setSelectedPositions(positions);
+    setMatchedCombinations(_matchedCombinations);
   };
-  const checkIfIsIncluded = index => {
-    console.log(hoveredCombinations.includes(index));
-    return hoveredCombinations.includes(index);
+
+  const reset = () => {
+    setMatchedCombinations(combinations);
+    setSelectedPositions([]);
+    setMatchedPositions({});
   };
+
   return (
-    <>
+    <div style={{display: 'flex'}}>
       <TileContainer>
         {numbers.map((number, index) => (
           <Tile
             key={index}
-            className={classNames({hovered: checkIfIsIncluded(index)})}
+            className={classNames({
+              hovered: hoveredCombinations.includes(index),
+              selected: selectedPositions.includes(index)
+            })}
             click={() => searchOcurrences(index)}
           >
-            {number}({matchedPositions[index]})
+            {number}
+            {matchedPositions[index] ? `(${matchedPositions[index]})` : null}
           </Tile>
         ))}
       </TileContainer>
-      <CombinationsContainer combinations={combinations} showCombinations={showCombinations} />
-    </>
+      <CombinationsContainer
+        combinations={matchedCombinations}
+        showCombinations={positions => setHoveredCombinations(positions)}
+        resetCombinations={() => reset()}
+      />
+    </div>
   );
 };
 

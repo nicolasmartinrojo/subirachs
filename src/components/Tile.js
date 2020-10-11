@@ -18,11 +18,15 @@ const TileContainer = styled.div`
 
     transition: 0.3s ease all;
     &:hover {
-      background-color: ${props => props.theme.tileColorHover};
+      opacity: 0.9;
     }
   }
-  &.hovered div {
-    background-color: red;
+  &.hovered,
+  &.selected {
+    div {
+      background-color: gold;
+      color: black;
+    }
   }
 `;
 const Tile = ({children, click, ...rest}) => {
